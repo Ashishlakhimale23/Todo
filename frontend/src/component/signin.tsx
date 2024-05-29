@@ -1,0 +1,164 @@
+import { useCallback, useContext, useEffect, useState } from "react";
+import {  useNavigate } from "react-router-dom";
+import {Toaster,toast} from "react-hot-toast"
+import joi from "joi"
+import axios from "axios";
+import { AuthContext } from "../context/context";
+function Signin() {
+  const schema = joi.object({
+    username: joi.string().alphanum().min(3).max(30).required(),
+    email: joi.string().email({minDomainSegments:2,tlds:{allow:["com","net"]}}),
+    password:joi.string().pattern(new RegExp('^(?=.*[a-zA-Z0-9])(?=.*[!@#$%^&*()_+])[a-zA-Z0-9!@#$%^&*()_+]{3,30}$')),
+    
+    })
+
+  const authcontext = useContext(AuthContext)    
+  const  {logged , setLogged} = authcontext  
+  const navigate = useNavigate();
+  const [email, setEmail] = useState("");
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  
+
+  const handelsubmit = useCallback(async (e)=>{
+    e.preventDefault()
+
+      const loading = toast.loading("loading..")
+   try{
+    if(!email.length){
+      return toast.error("Enter  email")
+    }
+    if(!username.length){
+      return toast.error("Enter username")
+    }
+    if(!password.length){
+      return toast.error("Enter password")
+    }
+    
+
+    const userInput ={
+      username:username,
+      email:email,
+      password:password,
+     
+    }
+
+    const result = schema.validate(userInput,{abortEarly:false})
+    console.log(result)
+    if(Object.keys(result).includes("error")){
+      return toast.error("Validation error")
+    }
+    
+    
+    await axios.post("http://localhost:8000/user/signin",userInput)
+    .then((response)=>{
+    console.log(response)
+     if(Object.keys(response.data).includes("created" || "token")){
+     
+      localStorage.setItem("authtoken",response.data.token)
+      
+      setLogged(true) 
+     }
+     if(Object.keys(response.data).includes("Alreadysignedup")){
+      setEmail("")
+      setUsername("")
+      setPassword("")
+      return toast.error("These Email already exists")
+     }
+
+     if(Object.keys(response.data).includes("Error")){
+
+      setEmail("")
+      setUsername("")
+      setPassword("")
+      return toast.error("An Error occured")
+
+     }
+
+      
+    }).catch((err)=>{
+      toast.error("An error occured")
+    setEmail("")
+      setUsername("")
+      setPassword("")})
+
+  } catch (err) {
+    return toast.error("An error occured") 
+  }finally{
+    return toast.dismiss(loading)
+  } 
+
+
+  },
+    
+    [username,email,password,schema],
+  );
+   
+  useEffect(()=>{
+    if(logged){
+      navigate("/home")
+    }
+  },[logged])
+
+  return (
+    <>
+      <div className="min-h-screen flex flex-col justify-center">
+        <form
+          action=""
+          onSubmit={handelsubmit}
+          className=" relative sm:w-96 mx-auto text-center"
+        >
+          <div className="text-4xl font-bold mb-3">
+            <span className="text-black">Get</span>
+            <span className="text-orange-600">better</span>
+            <span className="text-gray-400">*</span>
+          </div>
+          <label className="text-4xl font-bold block">Join the Community</label>
+          <label htmlFor="">Already have an account ?  <a href="/login" className="underline hover:text-purple-400"> Log in</a></label>
+          <div className="mt-4  bg-white shadow-lg  rounded-lg ">
+            <div className="px-3 py-4">
+              <label className="block font-semibold text-left">Email</label>
+              <input
+                type="email"
+                placeholder="Email"
+                className="mt-2 border hover:outline-none focus:outline-none w-full h-5 focus:ring-1 focus:ring-indigo-400 rounded-md px-4 py-5"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+              />
+              <label className="block font-semibold text-left">Username</label>
+              <input
+                type="text"
+                placeholder="Username"
+                className="mt-2 border hover:outline-none focus:outline-none w-full h-5 focus:ring-1 focus:ring-indigo-400 rounded-md px-4 py-5"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+              />
+              <label className="block mt-2 font-semibold text-left">
+                Password
+              </label>
+              <input
+                type="password"
+                placeholder="Password"
+                className="mt-2 border hover:outline-none focus:outline-none w-full h-5 focus:ring-1 focus:ring-indigo-400 rounded-md px-4 py-5 mb-2"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+              />
+              <div className="flex justify-between items-baseline">
+                <button
+                  type="submit"
+                  className="px-5 py-3 bg-indigo-500 mt-2 text-white rounded-md hover:bg-indigo-400"
+                >
+                  Signup
+                </button>
+                
+              </div>
+            </div>
+            
+          </div>
+        </form>
+      </div>
+      <Toaster />
+    </>
+  );
+}
+export default Signin;
