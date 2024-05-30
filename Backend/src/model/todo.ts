@@ -1,5 +1,4 @@
 import mongoose from "mongoose"
-import {user} from "./user" 
 const todoschema = new mongoose.Schema({
     todouser:[{ 
     title :{
