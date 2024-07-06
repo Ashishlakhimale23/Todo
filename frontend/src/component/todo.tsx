@@ -88,8 +88,8 @@ function Todo() {
           Logout
         </button>
       </div>
-      <div className="flex space-x-2">
-        <div className="flex flex-col h-fit w-96 p-4 bg-black space-y-4 rounded-md">
+      <div className="sm:flex space-y-4 sm:space-x-2 sm:space-y-0  ">
+        <div className="flex flex-col h-fit w-full p-4 bg-black space-y-4 rounded-md">
           <label htmlFor="" className="text-white">
             Title
           </label>
@@ -129,7 +129,7 @@ function Todo() {
             Add Task
           </button>
         </div>
-        <div className="grow">
+        <div className="grow w-full ">
           {todos ? (
             <ul className="space-y-2">
               {todos.map((t: Todo, index: number) => (

@@ -3,7 +3,7 @@ import jwt, { JwtPayload } from "jsonwebtoken"
 
 export async function userverification(req:Request,res:Response,next:NextFunction){
     const authtoken = req.headers.authorization || req.headers.Authorization
-    console.log(authtoken)
+    
     if(!authtoken || typeof authtoken !="string" || !authtoken?.startsWith("Bearer ")){
         return res.json({message:"header not found"}).status(400)
     }

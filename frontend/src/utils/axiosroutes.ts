@@ -45,6 +45,7 @@ const refreshTokenFunction=async()=>{
                     const newrefreshtoken = response.data.refreshtoken
                     localStorage.setItem("authtoken",newauthtoken)
                     localStorage.setItem("refreshtoken",newrefreshtoken)
+                    
                     return newauthtoken
 }
 interface ExtendedAxiosRequestConfig extends AxiosRequestConfig {
@@ -55,22 +56,21 @@ api.interceptors.response.use(
     async function (error : AxiosError) {
         const originalrequest = error.config as ExtendedAxiosRequestConfig
 
-        console.log(originalrequest)
 
-                if(error.response?.status == 403 && originalrequest?.url == '/user/refresh'){
+        if(error.response?.status == 403 && originalrequest.url == '/user/refresh'){
             setTimeout(() => {
                window.location.href = '/login' 
             }, 500);
             return Promise.reject(error)
         }
         
-                if(error.response?.status == 401 && !originalrequest._retry){
+       if(error.response?.status == 401 && !originalrequest._retry){
                   console.log("errror")
 
                     originalrequest._retry = true 
             try{
-                    const newauthtoken = concurrencyHandler.execute(refreshTokenFunction) 
-                    api.defaults.headers.common["Authorization"] = `Bearer ${newauthtoken}`
+                    const newAccessToken = await concurrencyHandler.execute(refreshTokenFunction) 
+                  api.defaults.headers.common['Authorization'] = 'Bearer ' + newAccessToken;
                     return api(originalrequest)
 
             }catch(err){

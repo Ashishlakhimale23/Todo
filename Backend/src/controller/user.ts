@@ -71,20 +71,23 @@ export const handlelogin=async(req:Request<{},{},UserType>,res:Response)=>{
 export const handlerefresh = async(req:Request,res:Response)=>{
     const {refreshtoken} = req.body 
     console.log(refreshtoken)
-    const refreshkey = process.env.REFERSH_KEY!
+    const refreshkey = process.env.REFRESH_KEY!
     const secretkey = process.env.SECRET_KEY!
     try{
     jwt.verify(refreshtoken,refreshkey,(err:any,result:any)=>{
         if(err){
+            console.log(err)
             return res.status(403).end()
         }
         if(result){
+            console.log(result)
+            
            const email =  (result as JwtPayload).email
            const id = (result as JwtPayload ).id
             
         const authtoken = jwt.sign({email:email,id:id},secretkey,{expiresIn:"7h"}) 
         const refreshtoken = jwt.sign({email:email,id:id},refreshkey,{expiresIn:"7d"})
-        return res.json({"authtoken":authtoken,"refreshtoken":refreshtoken})
+        return res.json({"authtoken":authtoken,"refreshtoken":refreshtoken}).end()
 }
     })
 }
