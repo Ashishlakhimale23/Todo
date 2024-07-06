@@ -1,7 +1,12 @@
-import mongoose from "mongoose";
 
-const userschema =new mongoose.Schema({
+import mongoose from "mongoose";
+const user = new mongoose.Schema({
     email:{
+        type:String,
+        required:true,
+        unique:true
+    },
+    username:{
         type:String,
         required:true
     },
@@ -9,11 +14,11 @@ const userschema =new mongoose.Schema({
         type:String,
         required:true
     },
-    username:{
-        type:String,
-        required:true
-    },
-       
+    todos:[{
+        type:mongoose.Types.ObjectId,
+        ref:"Todo"
+    }]
+},{
+    timestamps:true
 })
-
-export const user = mongoose.model("user",userschema);
+export const User = mongoose.model("User",user)

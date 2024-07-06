@@ -1,25 +1,18 @@
-import mongoose from "mongoose"
-const todoschema = new mongoose.Schema({
-    todouser:[{ 
-    title :{
-        type :String,
-        required : true 
+import { boolean, required } from "joi";
+import mongoose from "mongoose";
+const todo = new mongoose.Schema({
+    title:{
+        type:String,
+        required:true
     },
     description:{
         type:String,
         required:true
-
     },
     completed:{
-        type:Boolean ,
-        default:false
-    }
-    }],
-   userid:{
-        type:mongoose.Schema.Types.ObjectId,
-        ref:'user'
+        type:Boolean,
+        deafult:false,
+        
     }
 })
-
-export const todo = mongoose.model("todo",todoschema)
-
+export const Todo = mongoose.model("Todo",todo)
